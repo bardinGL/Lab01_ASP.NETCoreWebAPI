@@ -1,25 +1,31 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
+# Use the official .NET 8.0 image as a parent image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER app
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
+# Use the SDK image for building the app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+# Copy the project files and restore dependencies
 COPY ["SE172788.ProductManagement.API/SE172788.ProductManagement.API.csproj", "SE172788.ProductManagement.API/"]
-RUN dotnet restore "./SE172788.ProductManagement.API/SE172788.ProductManagement.API.csproj"
+COPY ["SE172788.ProductManagement.Repo/SE172788.ProductManagement.Repo.csproj", "SE172788.ProductManagement.Repo/"]
+RUN dotnet restore "SE172788.ProductManagement.API/SE172788.ProductManagement.API.csproj"
+
+# Copy the rest of the application files and build
 COPY . .
 WORKDIR "/src/SE172788.ProductManagement.API"
-RUN dotnet build "./SE172788.ProductManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "SE172788.ProductManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
+# Publish the application
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./SE172788.ProductManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "SE172788.ProductManagement.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+# Final stage/image
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY SE172788.ProductManagement.API/appsettings.json .
 ENTRYPOINT ["dotnet", "SE172788.ProductManagement.API.dll"]
