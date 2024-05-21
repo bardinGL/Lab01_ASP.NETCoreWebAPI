@@ -8,9 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Add DbContext with the connection string from environment variable
-var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? throw new InvalidOperationException("Connection string not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    var connectionString = builder.Configuration.GetConnectionString("ConnectionstringAPI");
+    options.UseSqlServer(connectionString);
+});
 
 // Register UnitOfWork and Repositories
 builder.Services.AddScoped<UnitOfWork>();

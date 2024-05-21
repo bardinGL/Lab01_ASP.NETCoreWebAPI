@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SE172788.ProductManagement.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SE172788.ProductManagement.Repo", "SE172788.ProductManagement.Repo\SE172788.ProductManagement.Repo.csproj", "{7347B03B-657B-45E1-BD0F-85456D759045}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{E3BBFE27-D4F1-4D46-B95E-057AB2338B47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{7347B03B-657B-45E1-BD0F-85456D759045}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7347B03B-657B-45E1-BD0F-85456D759045}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7347B03B-657B-45E1-BD0F-85456D759045}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3BBFE27-D4F1-4D46-B95E-057AB2338B47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3BBFE27-D4F1-4D46-B95E-057AB2338B47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3BBFE27-D4F1-4D46-B95E-057AB2338B47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3BBFE27-D4F1-4D46-B95E-057AB2338B47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

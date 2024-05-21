@@ -15,45 +15,38 @@ namespace SE172788.ProductManagement.Repo.Repositories
             _context = context;
         }
 
-        public GenericRepository<Product> Products
+        public GenericRepository<Product> ProductRepository
         {
             get
             {
-                return _productRepository ??= new GenericRepository<Product>(_context);
-            }
-        }
-
-        public GenericRepository<Category> Categories
-        {
-            get
-            {
-                return _categoryRepository ??= new GenericRepository<Category>(_context);
-            }
-        }
-
-        public int Complete()
-        {
-            return _context.SaveChanges();
-        }
-
-        private bool disposed = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
+                if (_productRepository == null)
                 {
-                    _context.Dispose();
+                    _productRepository = new GenericRepository<Product>(_context);
                 }
+                return _productRepository;
             }
-            disposed = true;
+        }
+
+        public GenericRepository<Category> CategoryRepository
+        {
+            get
+            {
+                if (_categoryRepository == null)
+                {
+                    _categoryRepository = new GenericRepository<Category>(_context);
+                }
+                return _categoryRepository;
+            }
+        }
+
+        public void Complete()
+        {
+            _context.SaveChanges();
         }
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            _context.Dispose();
         }
     }
 }

@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace SE172788.ProductManagement.API.Controllers
 {
@@ -21,39 +23,32 @@ namespace SE172788.ProductManagement.API.Controllers
 
         // GET: api/Products
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetProducts(string sortField, string sortOrder, string searchString, int? pageIndex, int? pageSize)
+        public IActionResult GetProducts(string sortBy = "ProductName", string sortOrder = "asc", string search = "")
         {
-            // Filtering
-            Expression<Func<Product, bool>> filter = null;
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                filter = p => p.ProductName.Contains(searchString) || p.UnitPrice.ToString().Contains(searchString);
-            }
-
-            // Sorting
+            Expression<Func<Product, bool>> filter = p => string.IsNullOrEmpty(search) || p.ProductName.Contains(search) || p.UnitPrice.ToString().Contains(search);
             Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = null;
-            if (!string.IsNullOrEmpty(sortField))
+
+            if (!string.IsNullOrEmpty(sortBy))
             {
-                if (sortField.ToLower() == "name")
+                if (sortOrder.ToLower() == "asc")
                 {
-                    orderBy = sortOrder == "desc" ? q => q.OrderByDescending(p => p.ProductName) : q => q.OrderBy(p => p.ProductName);
+                    orderBy = query => query.OrderBy(p => EF.Property<object>(p, sortBy));
                 }
-                else if (sortField.ToLower() == "price")
+                else if (sortOrder.ToLower() == "desc")
                 {
-                    orderBy = sortOrder == "desc" ? q => q.OrderByDescending(p => p.UnitPrice) : q => q.OrderBy(p => p.UnitPrice);
+                    orderBy = query => query.OrderByDescending(p => EF.Property<object>(p, sortBy));
                 }
             }
 
-            var products = _unitOfWork.Products.GetListById(filter, orderBy, pageIndex: pageIndex, pageSize: pageSize);
+            var products = _unitOfWork.ProductRepository.Get(filter, orderBy);
             return Ok(products);
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
-        public ActionResult<Product> GetProduct(int id)
+        public IActionResult GetProduct(int id)
         {
-            var product = _unitOfWork.Products.GetByID(id);
-
+            var product = _unitOfWork.ProductRepository.GetByID(id);
             if (product == null)
             {
                 return NotFound();
@@ -64,9 +59,14 @@ namespace SE172788.ProductManagement.API.Controllers
 
         // POST: api/Products
         [HttpPost]
-        public ActionResult<Product> PostProduct(Product product)
+        public IActionResult PostProduct(Product product)
         {
-            _unitOfWork.Products.Insert(product);
+            if (product == null)
+            {
+                return BadRequest("Product is null.");
+            }
+
+            _unitOfWork.ProductRepository.Insert(product);
             _unitOfWork.Complete();
             return CreatedAtAction(nameof(GetProduct), new { id = product.ProductId }, product);
         }
@@ -80,7 +80,7 @@ namespace SE172788.ProductManagement.API.Controllers
                 return BadRequest();
             }
 
-            _unitOfWork.Products.Update(product);
+            _unitOfWork.ProductRepository.Update(product);
             _unitOfWork.Complete();
             return NoContent();
         }
@@ -89,14 +89,13 @@ namespace SE172788.ProductManagement.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
         {
-            var product = _unitOfWork.Products.GetByID(id);
-
+            var product = _unitOfWork.ProductRepository.GetByID(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            _unitOfWork.Products.Delete(id);
+            _unitOfWork.ProductRepository.Delete(product);
             _unitOfWork.Complete();
             return NoContent();
         }

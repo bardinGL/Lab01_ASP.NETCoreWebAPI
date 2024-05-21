@@ -1,24 +1,31 @@
 version: '3.8'
 
+networks:
+  product_management_network:
+
 services:
   productmanagementapi:
-    image: hao2003/productmanagementapi:latest
+    image: ${DOCKER_REGISTRY-}hao2003/productmanagementapi:latest
     build:
       context: .
       dockerfile: SE172788.ProductManagement.API/Dockerfile
     ports:
-      - "8081:8080"
+      - "8081:80"
     environment:
-      - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_ENVIRONMENT=Production
       - DB_CONNECTION_STRING=Server=db;Database=ProductManagement;User=sa;Password=Haohaohao123;
     depends_on:
       - db
+    networks:
+      - product_management_network
 
   db:
-    image: mcr.microsoft.com/mssql/server
+    container_name: product_management_db
+    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       SA_PASSWORD: "Haohaohao123"
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
+    networks:
+      - product_management_network
